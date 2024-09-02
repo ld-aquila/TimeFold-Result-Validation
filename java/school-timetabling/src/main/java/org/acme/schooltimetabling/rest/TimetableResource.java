@@ -5,6 +5,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import ai.timefold.solver.core.api.solver.*;
+import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -20,10 +22,6 @@ import jakarta.ws.rs.core.Response;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
 
 import org.acme.schooltimetabling.domain.Timetable;
 import org.acme.schooltimetabling.rest.exception.ErrorInfo;
@@ -85,8 +83,11 @@ public class TimetableResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(Timetable problem) {
         String jobId = UUID.randomUUID().toString();
+        var terminationCOnfig=new TerminationConfig().withUnimprovedMinutesSpentLimit(1L);
+        SolverConfigOverride<Timetable> configOverride=new SolverConfigOverride<Timetable>().withTerminationConfig(terminationCOnfig);
         jobIdToJob.put(jobId, Job.ofTimetable(problem));
         solverManager.solveBuilder()
+                .withConfigOverride(configOverride)
                 .withProblemId(jobId)
                 .withProblemFinder(jobId_ -> jobIdToJob.get(jobId).timetable)
                 .withBestSolutionConsumer(solution -> jobIdToJob.put(jobId, Job.ofTimetable(solution)))

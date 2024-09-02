@@ -41,6 +41,22 @@ public class Visit implements LocationAware {
     public Visit() {
     }
 
+    @Override
+    public String toString() {
+        return "Visit{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", location=" + location +
+                ", demand=" + demand +
+                ", minStartTime=" + minStartTime +
+                ", maxEndTime=" + maxEndTime +
+                ", serviceDuration=" + serviceDuration +
+                ", vehicle=" + vehicle +
+                ", previousVisit=" + previousVisit +
+                ", arrivalTime=" + arrivalTime +
+                '}';
+    }
+
     public Visit(String id, String name, Location location, int demand,
                  LocalDateTime minStartTime, LocalDateTime maxEndTime, Duration serviceDuration) {
         this.id = id;
@@ -189,11 +205,6 @@ public class Visit implements LocationAware {
             return null;
         }
         return getDrivingTimeSecondsFromPreviousStandstill();
-    }
-
-    @Override
-    public String toString() {
-        return id;
     }
 
 }

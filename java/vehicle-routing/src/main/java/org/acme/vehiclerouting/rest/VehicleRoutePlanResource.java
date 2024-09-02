@@ -1,32 +1,15 @@
 package org.acme.vehiclerouting.rest;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import ai.timefold.solver.core.api.solver.RecommendedFit;
-import ai.timefold.solver.core.api.solver.ScoreAnalysisFetchPolicy;
-import ai.timefold.solver.core.api.solver.SolutionManager;
-import ai.timefold.solver.core.api.solver.SolverManager;
-import ai.timefold.solver.core.api.solver.SolverStatus;
-
+import ai.timefold.solver.core.api.solver.*;
+import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
+import com.fasterxml.jackson.databind.util.ExceptionUtil;
+import com.sun.management.OperatingSystemMXBean;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.acme.vehiclerouting.domain.Vehicle;
 import org.acme.vehiclerouting.domain.VehicleRoutePlan;
 import org.acme.vehiclerouting.domain.Visit;
@@ -45,6 +28,19 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.HardwareAbstractionLayer;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Tag(name = "Vehicle Routing with Capacity and Time Windows",
         description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
@@ -94,6 +90,9 @@ public class VehicleRoutePlanResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.TEXT_PLAIN)
     public String solve(VehicleRoutePlan problem) {
+
+        var terminationCOnfig = new TerminationConfig().withUnimprovedMinutesSpentLimit(1L);
+        SolverConfigOverride<VehicleRoutePlan> configOverride = new SolverConfigOverride<VehicleRoutePlan>().withTerminationConfig(terminationCOnfig);
         String jobId = UUID.randomUUID().toString();
         jobIdToJob.put(jobId, Job.ofRoutePlan(problem));
         solverManager.solveBuilder()
@@ -103,9 +102,84 @@ public class VehicleRoutePlanResource {
                 .withExceptionHandler((jobId_, exception) -> {
                     jobIdToJob.put(jobId, Job.ofException(exception));
                     LOGGER.error("Failed solving jobId ({}).", jobId, exception);
-                })
-                .run();
+                }).run()
+        ;
+
+        printSysInfo(jobId);
         return jobId;
+    }
+
+    public void printSysInfo(String jobId) {
+
+        String osName = System.getProperty("os.name");
+        String osVersion = System.getProperty("os.version");
+        String osArchitecture = System.getProperty("os.arch");
+
+        // CPU Information
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+
+        // Memory Information
+        long freeMemory = Runtime.getRuntime().freeMemory();
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        long maxMemory = Runtime.getRuntime().maxMemory();
+        long usedMemory = totalMemory - freeMemory;
+
+        // Using OperatingSystemMXBean for more detailed information
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long totalPhysicalMemorySize = osBean.getTotalPhysicalMemorySize();
+        long freePhysicalMemorySize = osBean.getFreePhysicalMemorySize();
+        double systemCpuLoad = osBean.getSystemCpuLoad() * 100;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(jobId))) {
+            SystemInfo systemInfo = new SystemInfo();
+            HardwareAbstractionLayer hardware = systemInfo.getHardware();
+            CentralProcessor processor = hardware.getProcessor();
+            writer.write("Operating System Information:\n");
+            writer.write("OS Name: " + osName + "\n");
+            writer.write("OS Version: " + osVersion + "\n");
+            writer.write("OS Architecture: " + osArchitecture + "\n");
+
+            writer.write("\nCPU Information:\n");
+            writer.write("Available processors (cores): " + availableProcessors + "\n");
+            writer.write("System CPU Load: " + systemCpuLoad + "%\n");
+            writer.write(processor.toString());
+
+            writer.write("\n\n Memory Information (JVM):\n");
+            writer.write("Free Memory: " + freeMemory / (1024 * 1024) + " MB\n");
+            writer.write("Total Memory: " + totalMemory / (1024 * 1024) + " MB\n");
+            writer.write("Max Memory: " + maxMemory / (1024 * 1024) + " MB\n");
+            writer.write("Used Memory: " + usedMemory / (1024 * 1024) + " MB\n");
+
+            writer.write("\nPhysical Memory Information:\n");
+            writer.write("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB\n");
+            writer.write("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB\n");
+
+            // Flush the writer to ensure all data is written
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Print Information
+        LOGGER.info("Operating System Information:");
+        LOGGER.info("OS Name: " + osName);
+        LOGGER.info("OS Version: " + osVersion);
+        LOGGER.info("OS Architecture: " + osArchitecture);
+
+        LOGGER.info("\nCPU Information:");
+        LOGGER.info("Available processors (cores): " + availableProcessors);
+        LOGGER.info("System CPU Load: " + systemCpuLoad + "%");
+
+        LOGGER.info("\nMemory Information (JVM):");
+        LOGGER.info("Free Memory: " + freeMemory / (1024 * 1024) + " MB");
+        LOGGER.info("Total Memory: " + totalMemory / (1024 * 1024) + " MB");
+        LOGGER.info("Max Memory: " + maxMemory / (1024 * 1024) + " MB");
+        LOGGER.info("Used Memory: " + usedMemory / (1024 * 1024) + " MB");
+
+        LOGGER.info("\nPhysical Memory Information:");
+        LOGGER.info("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB");
+        LOGGER.info("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB");
+
+
     }
 
     @Operation(summary = "Request recommendations to the RecommendedFit API for a new visit.")
@@ -181,7 +255,18 @@ public class VehicleRoutePlanResource {
         String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
         routePlan.setScoreExplanation(scoreExplanation);
+        printScoreInfo(jobId, scoreExplanation,routePlan);
         return routePlan;
+    }
+
+    public void printScoreInfo(String jobId, String scoreExplanation,VehicleRoutePlan vehicleRoutePlan) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Score Explanation:- "+jobId))) {
+            writer.write(scoreExplanation);
+            writer.write(vehicleRoutePlan.toString());
+        }
+        catch (Exception e){
+            LOGGER.error(e.toString());
+        }
     }
 
     @Operation(

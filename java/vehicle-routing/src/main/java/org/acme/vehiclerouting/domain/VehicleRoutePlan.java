@@ -151,4 +151,32 @@ public class VehicleRoutePlan {
     public void setScoreExplanation(String scoreExplanation) {
         this.scoreExplanation = scoreExplanation;
     }
+
+    @Override
+    public String toString() {
+        return "VehicleRoutePlan{" +
+                "name='" + name + '\'' +
+                ", southWestCorner=" + southWestCorner +
+                ", northEastCorner=" + northEastCorner +
+                ", startDateTime=" + startDateTime +
+                ", endDateTime=" + endDateTime +
+                ", vehicles=" + vehicles +
+                ", visits=\n" + formatVisits(visits) +
+                ", score=" + score +
+                ", solverStatus=" + solverStatus +
+                ", scoreExplanation='" + scoreExplanation + '\'' +
+                '}';
+    }
+    // Helper method to print each visit on a new line
+    private String formatVisits(List<Visit> visits) {
+        if (visits == null || visits.isEmpty()) {
+            return "[]";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Visit visit : visits) {
+            sb.append("  ").append(visit.toString()).append("\n");
+        }
+        return sb.toString();
+    }
 }

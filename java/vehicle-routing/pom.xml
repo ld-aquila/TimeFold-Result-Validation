@@ -52,6 +52,11 @@
       <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.github.oshi</groupId>
+      <artifactId>oshi-core</artifactId>
+      <version>5.3.4</version>
+    </dependency>
+    <dependency>
       <groupId>ai.timefold.solver</groupId>
       <artifactId>timefold-solver-quarkus</artifactId>
     </dependency>
