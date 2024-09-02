@@ -1,0 +1,25 @@
+Operating System Information:
+OS Name: Mac OS X
+OS Version: 14.6.1
+OS Architecture: aarch64
+
+CPU Information:
+Available processors (cores): 8
+System CPU Load: 0.0%
+Apple M1 Pro
+ 1 physical CPU package(s)
+ 8 physical CPU core(s)
+ 8 logical CPU(s)
+Identifier:  Family  Model  Stepping 
+ProcessorID: 0000000000000000
+Microarchitecture: unknown
+
+ Memory Information (JVM):
+Free Memory: 61 MB
+Total Memory: 194 MB
+Max Memory: 4096 MB
+Used Memory: 132 MB
+
+Physical Memory Information:
+Total Physical Memory: 16384 MB
+Free Physical Memory: 62 MB
