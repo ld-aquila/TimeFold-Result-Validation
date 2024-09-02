@@ -4,7 +4,6 @@ import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import ai.timefold.solver.core.api.solver.*;
 import ai.timefold.solver.core.config.solver.termination.TerminationConfig;
-import com.fasterxml.jackson.databind.util.ExceptionUtil;
 import com.sun.management.OperatingSystemMXBean;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -36,6 +35,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
         description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
 @Path("route-plans")
 public class VehicleRoutePlanResource {
-
+    String directory = "src/main/resources/results";
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
     private static final int MAX_RECOMMENDED_FIT_LIST_SIZE = 5;
 
@@ -129,35 +130,42 @@ public class VehicleRoutePlanResource {
         long totalPhysicalMemorySize = osBean.getTotalPhysicalMemorySize();
         long freePhysicalMemorySize = osBean.getFreePhysicalMemorySize();
         double systemCpuLoad = osBean.getSystemCpuLoad() * 100;
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(jobId))) {
-            SystemInfo systemInfo = new SystemInfo();
-            HardwareAbstractionLayer hardware = systemInfo.getHardware();
-            CentralProcessor processor = hardware.getProcessor();
-            writer.write("Operating System Information:\n");
-            writer.write("OS Name: " + osName + "\n");
-            writer.write("OS Version: " + osVersion + "\n");
-            writer.write("OS Architecture: " + osArchitecture + "\n");
+        try {
+            java.nio.file.Path filePath = Paths.get(directory+"/"+jobId, jobId);
+            Files.createDirectories(filePath.getParent());
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+                SystemInfo systemInfo = new SystemInfo();
+                HardwareAbstractionLayer hardware = systemInfo.getHardware();
+                CentralProcessor processor = hardware.getProcessor();
+                writer.write("Operating System Information:\n");
+                writer.write("OS Name: " + osName + "\n");
+                writer.write("OS Version: " + osVersion + "\n");
+                writer.write("OS Architecture: " + osArchitecture + "\n");
 
-            writer.write("\nCPU Information:\n");
-            writer.write("Available processors (cores): " + availableProcessors + "\n");
-            writer.write("System CPU Load: " + systemCpuLoad + "%\n");
-            writer.write(processor.toString());
+                writer.write("\nCPU Information:\n");
+                writer.write("Available processors (cores): " + availableProcessors + "\n");
+                writer.write("System CPU Load: " + systemCpuLoad + "%\n");
+                writer.write(processor.toString());
 
-            writer.write("\n\n Memory Information (JVM):\n");
-            writer.write("Free Memory: " + freeMemory / (1024 * 1024) + " MB\n");
-            writer.write("Total Memory: " + totalMemory / (1024 * 1024) + " MB\n");
-            writer.write("Max Memory: " + maxMemory / (1024 * 1024) + " MB\n");
-            writer.write("Used Memory: " + usedMemory / (1024 * 1024) + " MB\n");
+                writer.write("\n\n Memory Information (JVM):\n");
+                writer.write("Free Memory: " + freeMemory / (1024 * 1024) + " MB\n");
+                writer.write("Total Memory: " + totalMemory / (1024 * 1024) + " MB\n");
+                writer.write("Max Memory: " + maxMemory / (1024 * 1024) + " MB\n");
+                writer.write("Used Memory: " + usedMemory / (1024 * 1024) + " MB\n");
 
-            writer.write("\nPhysical Memory Information:\n");
-            writer.write("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB\n");
-            writer.write("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB\n");
+                writer.write("\nPhysical Memory Information:\n");
+                writer.write("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB\n");
+                writer.write("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB\n");
 
-            // Flush the writer to ensure all data is written
-            writer.flush();
+                // Flush the writer to ensure all data is written
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         // Print Information
         LOGGER.info("Operating System Information:");
@@ -255,17 +263,22 @@ public class VehicleRoutePlanResource {
         String scoreExplanation = solutionManager.explain(routePlan).getSummary();
         routePlan.setSolverStatus(solverStatus);
         routePlan.setScoreExplanation(scoreExplanation);
-        printScoreInfo(jobId, scoreExplanation,routePlan);
+        printScoreInfo(jobId, scoreExplanation, routePlan);
         return routePlan;
     }
 
-    public void printScoreInfo(String jobId, String scoreExplanation,VehicleRoutePlan vehicleRoutePlan) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Score Explanation:- "+jobId))) {
-            writer.write(scoreExplanation);
-            writer.write(vehicleRoutePlan.toString());
-        }
-        catch (Exception e){
-            LOGGER.error(e.toString());
+    public void printScoreInfo(String jobId, String scoreExplanation, VehicleRoutePlan vehicleRoutePlan) {
+        try {
+            java.nio.file.Path filePath = Paths.get(directory+"/"+jobId, "Score Explanation:- " + jobId);
+            Files.createDirectories(filePath.getParent());
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+                writer.write(scoreExplanation);
+                writer.write(vehicleRoutePlan.toString());
+            } catch (Exception e) {
+                LOGGER.error(e.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
