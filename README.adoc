@@ -49,7 +49,7 @@ The results of the experiment are stored in the following directory:
 
 [source, bash]
 ----
-java/vehicle-routing/src/main/resources/results
+/home/jboss/src/main/resources/results
 ----
 
 === Files
