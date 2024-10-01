@@ -1,0 +1,45 @@
+x-function: &basics
+  networks:
+    - testing_network
+
+services:
+  timefold-app:
+    <<: *basics
+    image: vehicle-routing
+    ports:
+      - '8080:8080'
+    build:
+      context: java/vehicle-routing
+      dockerfile: ../../docker/Dockerfile
+    container_name: vehicle-routing
+    hostname: vehicle-routing
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: 4
+          memory: 2G
+        reservations:
+          cpus: 4
+          memory: 2G
+#    volumes:
+#      - ./data/results:/app/results:rw
+
+  curl-app:
+    <<: *basics
+    image: curlimages/curl:latest
+    container_name: curl-app
+    hostname: curl-app
+    volumes:
+      - ./data/json/sample.json:/home/curl_user/sample.json
+    command: >
+      sh -c "
+        ping -c 4 vehicle-routing &&
+        curl -X POST -H 'Content-Type:application/json' http://vehicle-routing:8080/route-plans -d@sample.json"
+    depends_on:
+      timefold-app:
+        condition: service_started
+
+networks:
+  testing_network:
+    name: testing_default

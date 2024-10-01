@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
         description = "Vehicle Routing optimizes routes of vehicles with given capacities to visits available in specified time windows.")
 @Path("route-plans")
 public class VehicleRoutePlanResource {
-    String directory = "src/main/resources/results";
+    String directory = "results/";
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleRoutePlanResource.class);
     private static final int MAX_RECOMMENDED_FIT_LIST_SIZE = 5;
 
@@ -131,18 +131,19 @@ public class VehicleRoutePlanResource {
         long freePhysicalMemorySize = osBean.getFreePhysicalMemorySize();
         double systemCpuLoad = osBean.getSystemCpuLoad() * 100;
         try {
-            java.nio.file.Path filePath = Paths.get(directory+"/"+jobId, jobId);
+            java.nio.file.Path filePath = Paths.get(directory+jobId, "system_"+jobId);
             Files.createDirectories(filePath.getParent());
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+                writer.write("--- BOF ---");
                 SystemInfo systemInfo = new SystemInfo();
                 HardwareAbstractionLayer hardware = systemInfo.getHardware();
                 CentralProcessor processor = hardware.getProcessor();
-                writer.write("Operating System Information:\n");
+                writer.write("OS Info:\n");
                 writer.write("OS Name: " + osName + "\n");
                 writer.write("OS Version: " + osVersion + "\n");
                 writer.write("OS Architecture: " + osArchitecture + "\n");
 
-                writer.write("\nCPU Information:\n");
+                writer.write("\nCPU Info:\n");
                 writer.write("Available processors (cores): " + availableProcessors + "\n");
                 writer.write("System CPU Load: " + systemCpuLoad + "%\n");
                 writer.write(processor.toString());
@@ -157,6 +158,8 @@ public class VehicleRoutePlanResource {
                 writer.write("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB\n");
                 writer.write("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB\n");
 
+                writer.write("--- EOF ---");
+
                 // Flush the writer to ensure all data is written
                 writer.flush();
             } catch (IOException e) {
@@ -168,6 +171,7 @@ public class VehicleRoutePlanResource {
 
 
         // Print Information
+/*
         LOGGER.info("Operating System Information:");
         LOGGER.info("OS Name: " + osName);
         LOGGER.info("OS Version: " + osVersion);
@@ -186,6 +190,7 @@ public class VehicleRoutePlanResource {
         LOGGER.info("\nPhysical Memory Information:");
         LOGGER.info("Total Physical Memory: " + totalPhysicalMemorySize / (1024 * 1024) + " MB");
         LOGGER.info("Free Physical Memory: " + freePhysicalMemorySize / (1024 * 1024) + " MB");
+*/
 
 
     }
@@ -269,13 +274,18 @@ public class VehicleRoutePlanResource {
 
     public void printScoreInfo(String jobId, String scoreExplanation, VehicleRoutePlan vehicleRoutePlan) {
         try {
-            java.nio.file.Path filePath = Paths.get(directory+"/"+jobId, "Score Explanation:- " + jobId);
+            java.nio.file.Path filePath = Paths.get(directory+jobId, "score_" + jobId);
             Files.createDirectories(filePath.getParent());
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+                writer.write("--- BOF ---");
+
                 writer.write(scoreExplanation);
                 writer.write(vehicleRoutePlan.toString());
+
+                writer.write("--- EOF ---");
+                writer.flush();
             } catch (Exception e) {
-                LOGGER.error(e.toString());
+                e.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
