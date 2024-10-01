@@ -15,57 +15,62 @@ The purpose of this experiment is to validate whether the TimeFold application b
 - Intel-based machine
 - AMD-based machine
 - Mac machine (ARM-based)
+- At least 2G of RAM
+- At lest 4 CPU cores
 
 === Software
-- Docker installed on all machines to create consistent environments across architectures.
-- JDK 21 installed within the Docker environment.
-- Clone the repository from the following link: https://github.com/ld-aquila/TimeFold-Result-Validation/blob/stable/java/vehicle-routing/README.adoc
-
-=== Other Dependencies
-- Ensure that each machine has equivalent Docker environments, with identical CPU, RAM, and Java heap size specifications.
+- `docker` & `docker-compose` installed on all machines to create consistent environments across architectures.
+- docker version 27.3.1 or above
+- docker-compose version 1.29.2 or above
 
 == How to Run the Application
-
-To install and run the TimeFold application, please follow the instructions provided in the official TimeFold Vehicle Routing README at https://github.com/ld-aquila/TimeFold-Result-Validation/blob/stable/java/vehicle-routing/README.adoc.
-
-=== General Steps
-1. Set up the Docker environment on each machine.
-2. Run the application inside the Docker container on each architecture machine using the guide.
-3. Ensure that all configurations (e.g., Java heap size, CPU cores) are consistent across all machines.
-
-== What Was Changed in This App Compared to the Original Example
-
-=== Result Storage
-- Two files are generated for each `jobId` in the `java/vehicle-routing/src/main/resources/results` directory:
-- A file with the exact `jobId` name contains details about the CPU, RAM, Java heap size, and their utilization.
-- A second file, prefixed with `score-explanation-` followed by the `jobId`, stores the score explanation results and the visit/vehicle routing data in text format.
-
-=== Cross-Architecture Validation
-- The application is modified to gather performance data and validate the consistency of results across different architectures.
+- clone this repository
+- run `docker-compose up`
+- once the app is running, a curl request with data from `data/json/sample.json` is being sent to the solver
 
 == Where Are the Results Stored?
+- files are stored in `data/results/<jobId>` folder
+- inside the above folder two files are being created prefixed with:
 
-The results of the experiment are stored in the following directory:
+-> `system_`: details about CPU, RAM, Java heap size, and utilization for the run on a particular architecture
 
-[source, bash]
-----
-/home/jboss/src/main/resources/results
-----
+-> `score_`: the score explanation and the vehicle routing results in text form.
 
-=== Files
-- **`jobId`**: Contains details about CPU, RAM, Java heap size, and utilization for the run on a particular architecture.
-- **`score-explanation-jobId`**: Contains the score explanation and the vehicle routing results in text form.
+- application is done running when a similar messages is rendered
+```
+curl-app exited with code 0
+vehicle-routing | 2024-10-01 19:26:13,965 INFO  [ai.tim.sol.cor.imp.con.DefaultConstructionHeuristicPhase] (pool-5-thread-1) Construction Heuristic phase (0) ended: time spent (203), best score (0hard/-10343soft), score calculation speed (19471/sec), step total (77).
+vehicle-routing | 2024-10-01 19:26:43,762 INFO  [ai.tim.sol.cor.imp.loc.DefaultLocalSearchPhase] (pool-5-thread-1) Local Search phase (1) ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (144257/sec), step total (41254).
+vehicle-routing | 2024-10-01 19:26:43,763 INFO  [ai.tim.sol.cor.imp.sol.DefaultSolver] (pool-5-thread-1) Solving ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (143384/sec), phase total (2), environment mode (REPRODUCIBLE), move thread count (NONE).
+```
 
-== How to Read the Results
-
-=== CPU, RAM, Java Heap Utilization
-- Open the file with the exact `jobId` name in the `results` directory. This file contains information about the CPU architecture, RAM usage, and Java heap size/utilization.
-
-=== Score Explanation & Visit/Vehicle Details
-- Open the file prefixed with `score-explanation-` followed by the `jobId`. This file contains details of the score explanation and the solution for vehicle routing, including the sequence of visits per vehicle.
+=== Cross-Architecture Validation
+- the application is modified to gather performance data and validate the consistency of results across different architectures.
+- docker settings are limited to 4 CPU cores and 2G
 
 == Discussion
 
-This experiment evaluates the performance and consistency of the TimeFold application across different architectures (Intel, AMD, Mac) under the same configuration. The goal is to validate that TimeFold produces consistent results across different architectures, unlike other applications that have shown discrepancies.
+- this experiment evaluates the performance and consistency of the TimeFold application across different architectures (Intel, AMD, Mac) under the same configuration. The goal is to validate that TimeFold produces consistent results across different architectures, unlike other applications that have shown discrepancies.
+- by examining CPU, RAM, and Java heap utilization and comparing the routing results, we can determine if architecture has any significant impact on the outcome. This validation is crucial for understanding the cross-architecture behavior of TimeFold and confirming its reliability in diverse hardware environments.
 
-By examining CPU, RAM, and Java heap utilization and comparing the routing results, we can determine if architecture has any significant impact on the outcome. This validation is crucial for understanding the cross-architecture behavior of TimeFold and confirming its reliability in diverse hardware environments.
+
+
+|===
+|Architecture |Score |jobId
+
+|Column 1, row 1
+|Column 2, row 1
+|Column 3, row 1
+
+|Column 1, row 2
+|Column 2, row 2
+|Column 3, row 2
+
+|Column 1, row 3
+|Column 2, row 3
+|Column 3, row 3
+
+|Column 1, row 4
+|Column 2, row 4
+|Column 3, row 4
+|===
