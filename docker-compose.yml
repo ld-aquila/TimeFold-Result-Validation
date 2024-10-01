@@ -9,8 +9,8 @@ services:
     ports:
       - '8080:8080'
     build:
-      context: java/vehicle-routing
-      dockerfile: ../../docker/Dockerfile
+      context: vehicle-routing
+      dockerfile: ../docker/Dockerfile
     container_name: vehicle-routing
     hostname: vehicle-routing
     restart: unless-stopped

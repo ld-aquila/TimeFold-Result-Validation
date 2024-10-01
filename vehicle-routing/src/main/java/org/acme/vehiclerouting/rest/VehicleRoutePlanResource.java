@@ -134,7 +134,7 @@ public class VehicleRoutePlanResource {
             java.nio.file.Path filePath = Paths.get(directory+jobId, "system_"+jobId);
             Files.createDirectories(filePath.getParent());
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
-                writer.write("--- BOF ---");
+                writer.write("--- BOF ---\n");
                 SystemInfo systemInfo = new SystemInfo();
                 HardwareAbstractionLayer hardware = systemInfo.getHardware();
                 CentralProcessor processor = hardware.getProcessor();
@@ -277,12 +277,12 @@ public class VehicleRoutePlanResource {
             java.nio.file.Path filePath = Paths.get(directory+jobId, "score_" + jobId);
             Files.createDirectories(filePath.getParent());
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
-                writer.write("--- BOF ---");
+                writer.write("--- BOF ---\n");
 
                 writer.write(scoreExplanation);
                 writer.write(vehicleRoutePlan.toString());
 
-                writer.write("--- EOF ---");
+                writer.write("\n--- EOF ---");
                 writer.flush();
             } catch (Exception e) {
                 e.printStackTrace();
