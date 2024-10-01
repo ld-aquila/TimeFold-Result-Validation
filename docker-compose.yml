@@ -17,11 +17,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 4
-          memory: 2G
+          cpus: '4'
+          memory: '2G'
         reservations:
-          cpus: 4
-          memory: 2G
+          cpus: '4'
+          memory: '2G'
     volumes:
       - ./data/results:/app/results:rw
 
