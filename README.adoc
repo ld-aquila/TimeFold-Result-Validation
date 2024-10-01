@@ -24,7 +24,8 @@ The purpose of this experiment is to validate whether the TimeFold application b
 - docker-compose version 1.29.2 or above
 
 == How to Run the Application
-- the only command to run is `docker-compose up`
+- clone this repository
+- run `docker-compose up`
 
 == Where Are the Results Stored?
 - files are stored in `data/results/<jobId>` folder
@@ -34,6 +35,14 @@ The purpose of this experiment is to validate whether the TimeFold application b
 
 -> `score_`: the score explanation and the vehicle routing results in text form.
 
+- application is done running when a similar messages is rendered
+```
+curl-app exited with code 0
+vehicle-routing | 2024-10-01 19:26:13,965 INFO  [ai.tim.sol.cor.imp.con.DefaultConstructionHeuristicPhase] (pool-5-thread-1) Construction Heuristic phase (0) ended: time spent (203), best score (0hard/-10343soft), score calculation speed (19471/sec), step total (77).
+vehicle-routing | 2024-10-01 19:26:43,762 INFO  [ai.tim.sol.cor.imp.loc.DefaultLocalSearchPhase] (pool-5-thread-1) Local Search phase (1) ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (144257/sec), step total (41254).
+vehicle-routing | 2024-10-01 19:26:43,763 INFO  [ai.tim.sol.cor.imp.sol.DefaultSolver] (pool-5-thread-1) Solving ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (143384/sec), phase total (2), environment mode (REPRODUCIBLE), move thread count (NONE).
+```
+
 === Cross-Architecture Validation
 - the application is modified to gather performance data and validate the consistency of results across different architectures.
 - docker settings are limited to 4 CPU cores and 2G
@@ -42,3 +51,25 @@ The purpose of this experiment is to validate whether the TimeFold application b
 
 - this experiment evaluates the performance and consistency of the TimeFold application across different architectures (Intel, AMD, Mac) under the same configuration. The goal is to validate that TimeFold produces consistent results across different architectures, unlike other applications that have shown discrepancies.
 - by examining CPU, RAM, and Java heap utilization and comparing the routing results, we can determine if architecture has any significant impact on the outcome. This validation is crucial for understanding the cross-architecture behavior of TimeFold and confirming its reliability in diverse hardware environments.
+
+
+
+|===
+|Architecture |Score |jobId
+
+|Column 1, row 1
+|Column 2, row 1
+|Column 3, row 1
+
+|Column 1, row 2
+|Column 2, row 2
+|Column 3, row 2
+
+|Column 1, row 3
+|Column 2, row 3
+|Column 3, row 3
+
+|Column 1, row 4
+|Column 2, row 4
+|Column 3, row 4
+|===
