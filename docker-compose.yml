@@ -22,8 +22,8 @@ services:
         reservations:
           cpus: 4
           memory: 2G
-#    volumes:
-#      - ./data/results:/app/results:rw
+    volumes:
+      - ./data/results:/app/results:rw
 
   curl-app:
     <<: *basics
