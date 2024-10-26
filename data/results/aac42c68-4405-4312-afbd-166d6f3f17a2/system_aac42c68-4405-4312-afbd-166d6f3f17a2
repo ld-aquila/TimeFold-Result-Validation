@@ -1,0 +1,27 @@
+--- BOF ---
+OS Info:
+OS Name: Linux
+OS Version: 5.4.0-196-generic
+OS Architecture: amd64
+
+CPU Info:
+Available processors (cores): 4
+System CPU Load: 30.31749005434783%
+Intel(R) Core(TM) i7-10710U CPU @ 1.10GHz
+ 1 physical CPU package(s)
+ 6 physical CPU core(s)
+ 12 logical CPU(s)
+Identifier: Intel64 Family 6 Model 166 Stepping 0
+ProcessorID: AFC1FBFF00A00660
+Microarchitecture: unknown
+
+ Memory Information (JVM):
+Free Memory: 10 MB
+Total Memory: 34 MB
+Max Memory: 512 MB
+Used Memory: 23 MB
+
+Physical Memory Information:
+Total Physical Memory: 2048 MB
+Free Physical Memory: 1926 MB
+--- EOF ---
