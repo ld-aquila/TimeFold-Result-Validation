@@ -26,7 +26,9 @@ The purpose of this experiment is to validate whether the TimeFold application b
 == How to Run the Application
 - clone this repository
 - run `docker-compose up`
-- once the app is running, a curl request with data from `data/json/sample.json` is being sent to the solver
+- once the app is running, a curl request with data from `data/sample.json` is being sent to the solver
+- the status of the solver is being periodically checked until the solver status becomes 'NOT_SOLVING'
+- a curl request is being sent to retrieve the results and write it down in the `results` folder
 
 == Where Are the Results Stored?
 - files are stored in `data/results/<jobId>` folder
@@ -42,6 +44,10 @@ curl-app exited with code 0
 vehicle-routing | 2024-10-01 19:26:13,965 INFO  [ai.tim.sol.cor.imp.con.DefaultConstructionHeuristicPhase] (pool-5-thread-1) Construction Heuristic phase (0) ended: time spent (203), best score (0hard/-10343soft), score calculation speed (19471/sec), step total (77).
 vehicle-routing | 2024-10-01 19:26:43,762 INFO  [ai.tim.sol.cor.imp.loc.DefaultLocalSearchPhase] (pool-5-thread-1) Local Search phase (1) ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (144257/sec), step total (41254).
 vehicle-routing | 2024-10-01 19:26:43,763 INFO  [ai.tim.sol.cor.imp.sol.DefaultSolver] (pool-5-thread-1) Solving ended: time spent (30000), best score (0hard/-5490soft), score calculation speed (143384/sec), phase total (2), environment mode (REPRODUCIBLE), move thread count (NONE).
+:
+...
+Done. Check the results file
+curl-app exited with code 0
 ```
 
 === Cross-Architecture Validation
