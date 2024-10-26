@@ -31,11 +31,12 @@ services:
     container_name: curl-app
     hostname: curl-app
     volumes:
-      - ./data/json/sample.json:/home/curl_user/sample.json
+      - ./data/sample.json:/home/curl_user/sample.json
+      - ./data/request_response.sh:/home/curl_user/request_response.sh
     command: >
       sh -c "
         ping -c 4 vehicle-routing &&
-        curl -X POST -H 'Content-Type:application/json' http://vehicle-routing:8080/route-plans -d@sample.json"
+        /home/curl_user/request_response.sh"
     depends_on:
       timefold-app:
         condition: service_started
