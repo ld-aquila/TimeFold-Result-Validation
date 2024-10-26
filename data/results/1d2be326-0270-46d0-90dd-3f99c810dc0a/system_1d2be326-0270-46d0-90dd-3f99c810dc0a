@@ -1,0 +1,27 @@
+--- BOF ---
+OS Info:
+OS Name: Linux
+OS Version: 5.15.49-linuxkit
+OS Architecture: aarch64
+
+CPU Info:
+Available processors (cores): 4
+System CPU Load: 18.92195625%
+
+ 1 physical CPU package(s)
+ 1 physical CPU core(s)
+ 4 logical CPU(s)
+Identifier: aarch64 Family 8 Model 0x000 Stepping r0x0p0
+ProcessorID: 6108000000000000
+Microarchitecture: unknown
+
+ Memory Information (JVM):
+Free Memory: 12 MB
+Total Memory: 34 MB
+Max Memory: 512 MB
+Used Memory: 21 MB
+
+Physical Memory Information:
+Total Physical Memory: 2048 MB
+Free Physical Memory: 1931 MB
+--- EOF ---
